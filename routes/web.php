@@ -1,0 +1,100 @@
+<?php
+
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProductController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('home');
+})->name('home');
+
+Route::get('/dashboard', function () {
+    $stats = [
+        ['label' => 'Actieve Makers', 'value' => 8],
+        ['label' => 'Openstaande Orders', 'value' => 12],
+        ['label' => 'Goedgekeurde Producten', 'value' => 27],
+        ['label' => 'Gemiddelde Rating', 'value' => '4.8/5'],
+        ['label' => 'Nieuwe Meldingen', 'value' => 3],
+        ['label' => 'Credit Transacties', 'value' => 44],
+    ];
+
+    return view('dashboard', compact('stats'));
+})->middleware('auth')->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/create', [ProductController::class, 'create'])
+        ->middleware('maker')
+        ->name('products.create');
+    Route::post('/products', [ProductController::class, 'store'])
+        ->middleware('maker')
+        ->name('products.store');
+    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])
+        ->middleware('maker')
+        ->name('products.edit');
+    Route::patch('/products/{product}', [ProductController::class, 'update'])
+        ->middleware('maker')
+        ->name('products.update');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])
+        ->middleware('maker')
+        ->name('products.destroy');
+
+    Route::get('/makers', function () {
+        $makers = [
+            [
+                'name' => 'Sofie De Vries',
+                'username' => 'sofie.makes',
+                'bio' => 'Keramist met focus op functionele stukken voor dagelijks gebruik.',
+            ],
+            [
+                'name' => 'Milan Jansen',
+                'username' => 'milanwoodlab',
+                'bio' => 'Houtbewerker die minimalistische keuken- en woonobjecten maakt.',
+            ],
+            [
+                'name' => 'Noor Peeters',
+                'username' => 'noorthreads',
+                'bio' => 'Textielmaker met liefde voor natuurlijke vezels en kleurcombinaties.',
+            ],
+        ];
+
+        return view('makers.index', compact('makers'));
+    })->name('makers.index');
+
+    Route::get('/orders', function () {
+        $orders = [
+            [
+                'id' => 1012,
+                'product' => 'Handgemaakte Keramische Mok',
+                'buyer' => 'Emma Van den Broeck',
+                'status' => 'in_progress',
+                'description' => 'Bestelling is in productie en wordt binnen 4 dagen verzonden.',
+            ],
+            [
+                'id' => 1013,
+                'product' => 'Eiken Houten Snijplank',
+                'buyer' => 'Lucas Vermeulen',
+                'status' => 'completed',
+                'description' => 'Afgeleverd en beoordeeld met 5 sterren.',
+            ],
+            [
+                'id' => 1014,
+                'product' => 'Geweven Wandtapijt',
+                'buyer' => 'Lotte Jacobs',
+                'status' => 'pending',
+                'description' => 'Betaling ontvangen, maker start productie binnenkort.',
+            ],
+        ];
+
+        return view('orders.index', compact('orders'));
+    })->name('orders.index');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
