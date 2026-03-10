@@ -4,8 +4,8 @@
         <p class="muted">Alleen de eigenaar van dit product kan wijzigingen opslaan.</p>
 
         @if ($errors->any())
-        <article class="card" style="border-color:#fca5a5; margin-bottom:1rem;">
-            <h3 style="color:#b91c1c;">Controleer je invoer</h3>
+        <article class="alert alert-error">
+            <h3 style="margin:0 0 0.5rem;">Controleer je invoer</h3>
             <ul style="margin:0; padding-left:1.2rem;">
                 @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
@@ -14,23 +14,23 @@
         </article>
         @endif
 
-        <form method="POST" action="{{ route('products.update', $product) }}" class="card" style="display:grid; gap:0.9rem;">
+        <form method="POST" action="{{ route('products.update', $product) }}" class="card form-card">
             @csrf
             @method('PATCH')
 
-            <label>
+            <label class="field">
                 <strong>Naam *</strong><br>
-                <input name="name" value="{{ old('name', $product->name) }}" required style="width:100%; padding:0.6rem; margin-top:0.3rem; border:1px solid #cbd2d9; border-radius:8px;">
+                <input name="name" value="{{ old('name', $product->name) }}" required>
             </label>
 
-            <label>
+            <label class="field">
                 <strong>Beschrijving *</strong><br>
-                <textarea name="description" required rows="4" style="width:100%; padding:0.6rem; margin-top:0.3rem; border:1px solid #cbd2d9; border-radius:8px;">{{ old('description', $product->description) }}</textarea>
+                <textarea name="description" required rows="4">{{ old('description', $product->description) }}</textarea>
             </label>
 
-            <label>
+            <label class="field">
                 <strong>Categorie *</strong><br>
-                <select name="category_id" required style="width:100%; padding:0.6rem; margin-top:0.3rem; border:1px solid #cbd2d9; border-radius:8px;">
+                <select name="category_id" required>
                     <option value="">Kies een categorie</option>
                     @foreach ($categories as $category)
                     <option value="{{ $category->id }}" @selected((int) old('category_id', $product->category_id) === (int) $category->id)>{{ $category->name }}</option>
@@ -38,19 +38,34 @@
                 </select>
             </label>
 
-            <label>
+            <label class="field">
                 <strong>Type</strong><br>
-                <input name="type" value="{{ old('type', $product->material) }}" placeholder="Bijv. keramiek, hout, textiel" style="width:100%; padding:0.6rem; margin-top:0.3rem; border:1px solid #cbd2d9; border-radius:8px;">
+                <input name="type" value="{{ old('type', $product->material) }}" placeholder="Bijv. keramiek, hout, textiel">
             </label>
 
-            <label>
+            <label class="field">
+                <strong>Productietijd</strong><br>
+                <input name="production_time" value="{{ old('production_time', $product->production_time) }}" placeholder="Bijv. 1-2 weken, 3-5 dagen">
+            </label>
+
+            <label class="field">
+                <strong>Complexiteit</strong><br>
+                <select name="complexity">
+                    <option value="">Kies complexiteit</option>
+                    <option value="Laag" @selected(old('complexity', $product->complexity)=='Laag')>Laag</option>
+                    <option value="Gemiddeld" @selected(old('complexity', $product->complexity)=='Gemiddeld')>Gemiddeld</option>
+                    <option value="Hoog" @selected(old('complexity', $product->complexity)=='Hoog')>Hoog</option>
+                </select>
+            </label>
+
+            <label class="field">
                 <strong>Specificaties</strong><br>
-                <textarea name="specifications" rows="3" placeholder="Extra details over afwerking, formaat, materiaal..." style="width:100%; padding:0.6rem; margin-top:0.3rem; border:1px solid #cbd2d9; border-radius:8px;">{{ old('specifications', $product->unique_features) }}</textarea>
+                <textarea name="specifications" rows="3" placeholder="Extra details over afwerking, formaat, materiaal...">{{ old('specifications', $product->unique_features) }}</textarea>
             </label>
 
-            <div style="display:flex; gap:0.7rem; flex-wrap:wrap;">
-                <button type="submit" style="padding:0.55rem 0.9rem; border:0; border-radius:8px; background:#0f766e; color:#fff; font-weight:700; cursor:pointer;">Wijzigingen opslaan</button>
-                <a href="{{ route('products.show', $product) }}" style="padding:0.55rem 0.9rem; border-radius:8px; border:1px solid #cbd2d9; color:#334e68; text-decoration:none;">Annuleren</a>
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Wijzigingen opslaan</button>
+                <a href="{{ route('products.show', $product) }}" class="btn btn-secondary">Annuleren</a>
             </div>
         </form>
     </section>

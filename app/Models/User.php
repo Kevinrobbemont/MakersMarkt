@@ -121,4 +121,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(CreditTransaction::class, 'to_user_id');
     }
+
+    /**
+     * Determine whether the user has admin/moderator access.
+     */
+    public function isAdminOrModerator(): bool
+    {
+        return in_array($this->role?->name, ['admin', 'moderator'], true);
+    }
 }

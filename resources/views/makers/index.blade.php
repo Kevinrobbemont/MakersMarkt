@@ -3,11 +3,11 @@
         <h1>Makers</h1>
         <p class="muted">Basispagina met makers en profielsamenvatting.</p>
 
-        <div class="grid cols-3">
+        <div class="analytics-grid" style="margin-top:1rem;">
             @foreach ($makers as $maker)
-            <article class="card">
+            <article class="panel span-4">
                 <h3>{{ $maker['name'] }}</h3>
-                <p class="muted">@{{ $maker['username'] }}</p>
+                <p><span class="muted-chip">@{{ $maker['username'] }}</span></p>
                 <p>{{ $maker['bio'] }}</p>
             </article>
             @endforeach

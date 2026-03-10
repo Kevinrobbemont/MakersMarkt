@@ -23,6 +23,7 @@ class MakersMarktSeeder extends Seeder
     public function run(): void
     {
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
+            $moderatorRole = Role::firstOrCreate(['name' => 'moderator']);
         $makerRole = Role::firstOrCreate(['name' => 'maker']);
         $buyerRole = Role::firstOrCreate(['name' => 'buyer']);
 
@@ -43,6 +44,14 @@ class MakersMarktSeeder extends Seeder
             'is_verified' => true,
         ]);
 
+        $moderator = User::factory()->create([
+            'username' => 'moderator',
+            'name' => 'Moderator User',
+            'email' => 'moderator@makersmarkt.test',
+            'role_id' => $moderatorRole->id,
+            'is_verified' => true,
+        ]);
+
         $makers = User::factory(8)->create([
             'role_id' => $makerRole->id,
             'is_verified' => true,
@@ -54,6 +63,7 @@ class MakersMarktSeeder extends Seeder
         ]);
 
         $allUsers = collect([$admin])->merge($makers)->merge($buyers);
+    $allUsers = collect([$admin, $moderator])->merge($makers)->merge($buyers);
 
         foreach ($allUsers as $user) {
             Profile::factory()->create(['user_id' => $user->id]);

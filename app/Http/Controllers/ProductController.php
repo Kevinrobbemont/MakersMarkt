@@ -18,6 +18,9 @@ class ProductController extends Controller
         $user = $request->user();
         $search = trim((string) $request->query('q', ''));
         $selectedCategory = $request->integer('category_id');
+        $selectedMaterial = trim((string) $request->query('material', ''));
+        $selectedProductionTime = trim((string) $request->query('production_time', ''));
+        $selectedComplexity = trim((string) $request->query('complexity', ''));
         $roleName = $user?->role?->name;
         $isMaker = $roleName === 'maker';
         $isAdmin = $roleName === 'admin';
@@ -47,6 +50,15 @@ class ProductController extends Controller
             ->when($selectedCategory > 0, function ($query) use ($selectedCategory) {
                 $query->where('category_id', $selectedCategory);
             })
+            ->when($selectedMaterial !== '', function ($query) use ($selectedMaterial) {
+                $query->where('material', $selectedMaterial);
+            })
+            ->when($selectedProductionTime !== '', function ($query) use ($selectedProductionTime) {
+                $query->where('production_time', $selectedProductionTime);
+            })
+            ->when($selectedComplexity !== '', function ($query) use ($selectedComplexity) {
+                $query->where('complexity', $selectedComplexity);
+            })
             ->latest()
             ->paginate(12)
             ->withQueryString();
@@ -55,7 +67,45 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('products.index', compact('products', 'categories', 'isMaker', 'isAdmin', 'search', 'selectedCategory'));
+        // Haal beschikbare filter opties op
+        $materials = Product::query()
+            ->whereNotNull('material')
+            ->where('material', '!=', '')
+            ->distinct()
+            ->pluck('material')
+            ->sort()
+            ->values();
+
+        $productionTimes = Product::query()
+            ->whereNotNull('production_time')
+            ->where('production_time', '!=', '')
+            ->distinct()
+            ->pluck('production_time')
+            ->sort()
+            ->values();
+
+        $complexities = Product::query()
+            ->whereNotNull('complexity')
+            ->where('complexity', '!=', '')
+            ->distinct()
+            ->pluck('complexity')
+            ->sort()
+            ->values();
+
+        return view('products.index', compact(
+            'products',
+            'categories',
+            'isMaker',
+            'isAdmin',
+            'search',
+            'selectedCategory',
+            'selectedMaterial',
+            'selectedProductionTime',
+            'selectedComplexity',
+            'materials',
+            'productionTimes',
+            'complexities'
+        ));
     }
 
     /**
@@ -92,6 +142,8 @@ class ProductController extends Controller
             'description' => ['required', 'string'],
             'category_id' => ['required', 'exists:categories,id'],
             'type' => ['nullable', 'string', 'max:255'],
+            'production_time' => ['nullable', 'string', 'max:255'],
+            'complexity' => ['nullable', 'string', 'max:255'],
             'specifications' => ['nullable', 'string'],
         ]);
 
@@ -103,6 +155,8 @@ class ProductController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'],
             'material' => $validated['type'] ?? null,
+            'production_time' => $validated['production_time'] ?? null,
+            'complexity' => $validated['complexity'] ?? null,
             'unique_features' => $validated['specifications'] ?? null,
             'is_approved' => $isAdmin, // Admin producten worden automatisch goedgekeurd
         ]);
@@ -138,6 +192,8 @@ class ProductController extends Controller
             'description' => ['required', 'string'],
             'category_id' => ['required', 'exists:categories,id'],
             'type' => ['nullable', 'string', 'max:255'],
+            'production_time' => ['nullable', 'string', 'max:255'],
+            'complexity' => ['nullable', 'string', 'max:255'],
             'specifications' => ['nullable', 'string'],
         ]);
 
@@ -146,6 +202,8 @@ class ProductController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'],
             'material' => $validated['type'] ?? null,
+            'production_time' => $validated['production_time'] ?? null,
+            'complexity' => $validated['complexity'] ?? null,
             'unique_features' => $validated['specifications'] ?? null,
         ]);
 
