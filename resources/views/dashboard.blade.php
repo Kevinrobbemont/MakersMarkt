@@ -3,11 +3,11 @@
         <h1>Dashboard</h1>
         <p class="muted">Kerncijfers als basis voor admin/maker inzichten.</p>
 
-        <div class="grid cols-3">
+        <div class="analytics-grid" style="margin-top:1rem;">
             @foreach ($stats as $item)
-            <article class="card">
-                <p class="muted">{{ $item['label'] }}</p>
-                <h2>{{ $item['value'] }}</h2>
+            <article class="panel kpi-card span-4">
+                <p class="kpi-label">{{ $item['label'] }}</p>
+                <p class="kpi-value">{{ $item['value'] }}</p>
             </article>
             @endforeach
         </div>

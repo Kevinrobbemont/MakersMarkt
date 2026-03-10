@@ -3,9 +3,9 @@
         <h1>Bestellingen</h1>
         <p class="muted">Eenvoudige statuslijst voor orders als startpunt.</p>
 
-        <div class="grid">
+        <div class="stack" style="margin-top:1rem;">
             @foreach ($orders as $order)
-            <article class="card">
+            <article class="panel">
                 <h3>Order #{{ $order['id'] }}</h3>
                 <p><strong>Product:</strong> {{ $order['product'] }}</p>
                 <p><strong>Koper:</strong> {{ $order['buyer'] }}</p>

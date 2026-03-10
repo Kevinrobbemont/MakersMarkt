@@ -12,11 +12,11 @@
         <h1>Makers</h1>
         <p class="muted">Basispagina met makers en profielsamenvatting.</p>
 
-        <div class="grid cols-3">
+        <div class="analytics-grid" style="margin-top:1rem;">
             <?php $__currentLoopData = $makers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $maker): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <article class="card">
+            <article class="panel span-4">
                 <h3><?php echo e($maker['name']); ?></h3>
-                <p class="muted">{{ $maker['username'] }}</p>
+                <p><span class="muted-chip">{{ $maker['username'] }}</span></p>
                 <p><?php echo e($maker['bio']); ?></p>
             </article>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

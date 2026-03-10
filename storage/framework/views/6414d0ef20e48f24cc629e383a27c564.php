@@ -9,82 +9,112 @@
 <?php endif; ?>
 <?php $component->withAttributes(['title' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('MakersMarkt - Producten')]); ?>
     <section>
-        <h1>Producten</h1>
-        <p class="muted">Catalogus met zoeken en filteren. Kopers zien enkel goedgekeurde producten.</p>
+        <div class="section-head">
+            <div>
+                <h1>Producten</h1>
+                <p class="muted">Catalogus met zoeken en filteren. Kopers zien enkel goedgekeurde producten.</p>
+            </div>
+
+            <?php if(auth()->user()?->role?->name === 'maker' || auth()->user()?->role?->name === 'admin'): ?>
+            <a href="<?php echo e(route('products.create')); ?>" class="btn btn-primary">Product toevoegen</a>
+            <?php endif; ?>
+        </div>
 
         <?php if(session('status')): ?>
-            <article class="card" style="margin-bottom:1rem; border-color:#86efac;">
-                <p style="margin:0; color:#166534;"><?php echo e(session('status')); ?></p>
-            </article>
+        <article class="alert alert-success">
+            <p style="margin:0;"><?php echo e(session('status')); ?></p>
+        </article>
         <?php endif; ?>
 
-        <?php if(auth()->user()?->role?->name === 'maker' || auth()->user()?->role?->name === 'admin'): ?>
-            <p style="margin-bottom:1rem;">
-                <a href="<?php echo e(route('products.create')); ?>" style="display:inline-block; padding:0.55rem 0.9rem; border-radius:8px; background:#0f766e; color:#fff; font-weight:700; text-decoration:none;">
-                    Product toevoegen
-                </a>
-            </p>
-        <?php endif; ?>
-
-        <form method="GET" action="<?php echo e(route('products.index')); ?>" class="card" style="display:grid; gap:0.8rem; margin-bottom:1rem;">
-            <label>
+        <form method="GET" action="<?php echo e(route('products.index')); ?>" class="card form-card" style="margin-bottom:1rem;">
+            <label class="field">
                 <strong>Zoeken</strong><br>
-                <input name="q" value="<?php echo e($search); ?>" placeholder="Naam, beschrijving of specificaties" style="width:100%; padding:0.55rem; margin-top:0.3rem; border:1px solid #cbd2d9; border-radius:8px;">
+                <input name="q" value="<?php echo e($search); ?>" placeholder="Naam, beschrijving of specificaties">
             </label>
 
-            <label>
-                <strong>Categorie</strong><br>
-                <select name="category_id" style="width:100%; padding:0.55rem; margin-top:0.3rem; border:1px solid #cbd2d9; border-radius:8px;">
+            <label class="field">
+                <strong>Categorie (Type)</strong><br>
+                <select name="category_id">
                     <option value="">Alle categorieen</option>
                     <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($category->id); ?>" <?php if($selectedCategory === $category->id): echo 'selected'; endif; ?>><?php echo e($category->name); ?></option>
+                    <option value="<?php echo e($category->id); ?>" <?php if($selectedCategory===$category->id): echo 'selected'; endif; ?>><?php echo e($category->name); ?></option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </label>
 
-            <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
-                <button type="submit" style="padding:0.5rem 0.85rem; border:0; border-radius:8px; background:#0f766e; color:#fff; font-weight:700; cursor:pointer;">Filter toepassen</button>
-                <a href="<?php echo e(route('products.index')); ?>" style="padding:0.5rem 0.85rem; border:1px solid #cbd2d9; border-radius:8px; text-decoration:none; color:#334e68;">Reset</a>
+            <label class="field">
+                <strong>Materiaal</strong><br>
+                <select name="material">
+                    <option value="">Alle materialen</option>
+                    <?php $__currentLoopData = $materials; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $material): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($material); ?>" <?php if($selectedMaterial===$material): echo 'selected'; endif; ?>><?php echo e($material); ?></option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select>
+            </label>
+
+            <label class="field">
+                <strong>Productietijd</strong><br>
+                <select name="production_time">
+                    <option value="">Alle productietijden</option>
+                    <?php $__currentLoopData = $productionTimes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $time): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($time); ?>" <?php if($selectedProductionTime===$time): echo 'selected'; endif; ?>><?php echo e($time); ?></option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select>
+            </label>
+
+            <label class="field">
+                <strong>Complexiteit</strong><br>
+                <select name="complexity">
+                    <option value="">Alle complexiteitsniveaus</option>
+                    <?php $__currentLoopData = $complexities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $complexity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($complexity); ?>" <?php if($selectedComplexity===$complexity): echo 'selected'; endif; ?>><?php echo e($complexity); ?></option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select>
+            </label>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Filter toepassen</button>
+                <a href="<?php echo e(route('products.index')); ?>" class="btn btn-secondary">Reset</a>
             </div>
         </form>
 
         <div class="grid cols-3">
             <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <article class="card">
-                    <span class="pill"><?php echo e($product->category?->name ?? 'Onbekend'); ?></span>
-                    <h3><?php echo e($product->name); ?></h3>
-                    <p class="muted">Maker: <?php echo e($product->maker?->name ?? 'Onbekend'); ?></p>
-                    <p><?php echo e($product->description); ?></p>
-                    <p class="muted">
-                        Status:
-                        <?php echo e($product->is_approved ? 'goedgekeurd' : 'niet goedgekeurd'); ?>
+            <article class="card">
+                <span class="pill"><?php echo e($product->category?->name ?? 'Onbekend'); ?></span>
+                <h3><?php echo e($product->name); ?></h3>
+                <p class="muted">Maker: <?php echo e($product->maker?->name ?? 'Onbekend'); ?></p>
+                <p><?php echo e($product->description); ?></p>
+                <p class="muted">
+                    Status:
+                    <?php echo e($product->is_approved ? 'goedgekeurd' : 'niet goedgekeurd'); ?>
 
-                    </p>
+                </p>
 
-                    <p style="margin-top:0.7rem;">
-                        <a href="<?php echo e(route('products.show', $product)); ?>" style="color:#0f766e; font-weight:700; text-decoration:none;">Bekijk details</a>
-                    </p>
+                <p style="margin-top:0.7rem;">
+                    <a href="<?php echo e(route('products.show', $product)); ?>" class="subtle-link">Bekijk details</a>
+                </p>
 
-                    <?php if(($isMaker && (int) $product->maker_id === (int) auth()->id()) || $isAdmin): ?>
-                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
-                            <a href="<?php echo e(route('products.edit', $product)); ?>" style="padding:0.4rem 0.65rem; border:1px solid #cbd2d9; border-radius:8px; text-decoration:none; color:#334e68;">Aanpassen</a>
-                            <form method="POST" action="<?php echo e(route('products.destroy', $product)); ?>" onsubmit="return confirm('Weet je zeker dat je dit product wil verwijderen?');" style="margin:0;">
-                                <?php echo csrf_field(); ?>
-                                <?php echo method_field('DELETE'); ?>
-                                <button type="submit" style="padding:0.4rem 0.65rem; border:0; border-radius:8px; background:#b91c1c; color:#fff; cursor:pointer;">Verwijderen</button>
-                            </form>
-                        </div>
-                    <?php endif; ?>
-                </article>
+                <?php if(($isMaker && (int) $product->maker_id === (int) auth()->id()) || $isAdmin): ?>
+                <div class="btn-row" style="margin-top:0.5rem;">
+                    <a href="<?php echo e(route('products.edit', $product)); ?>" class="btn btn-secondary">Aanpassen</a>
+                    <form method="POST" action="<?php echo e(route('products.destroy', $product)); ?>" onsubmit="return confirm('Weet je zeker dat je dit product wil verwijderen?');" style="margin:0;">
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('DELETE'); ?>
+                        <button type="submit" class="btn btn-danger">Verwijderen</button>
+                    </form>
+                </div>
+                <?php endif; ?>
+            </article>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
 
         <?php if($products->isEmpty()): ?>
-            <article class="card" style="margin-top:1rem;">
-                <p class="muted" style="margin:0;">Nog geen producten beschikbaar.</p>
-            </article>
+        <article class="card" style="margin-top:1rem;">
+            <p class="muted" style="margin:0;">Nog geen producten beschikbaar.</p>
+        </article>
         <?php else: ?>
-            <?php echo e($products->links('pagination::simple')); ?>
+        <?php echo e($products->links('pagination::simple')); ?>
 
         <?php endif; ?>
     </section>
