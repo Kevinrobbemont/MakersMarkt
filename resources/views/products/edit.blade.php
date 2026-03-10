@@ -4,14 +4,14 @@
         <p class="muted">Alleen de eigenaar van dit product kan wijzigingen opslaan.</p>
 
         @if ($errors->any())
-            <article class="card" style="border-color:#fca5a5; margin-bottom:1rem;">
-                <h3 style="color:#b91c1c;">Controleer je invoer</h3>
-                <ul style="margin:0; padding-left:1.2rem;">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </article>
+        <article class="card" style="border-color:#fca5a5; margin-bottom:1rem;">
+            <h3 style="color:#b91c1c;">Controleer je invoer</h3>
+            <ul style="margin:0; padding-left:1.2rem;">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </article>
         @endif
 
         <form method="POST" action="{{ route('products.update', $product) }}" class="card" style="display:grid; gap:0.9rem;">
@@ -33,7 +33,7 @@
                 <select name="category_id" required style="width:100%; padding:0.6rem; margin-top:0.3rem; border:1px solid #cbd2d9; border-radius:8px;">
                     <option value="">Kies een categorie</option>
                     @foreach ($categories as $category)
-                        <option value="{{ $category->id }}" @selected((int) old('category_id', $product->category_id) === (int) $category->id)>{{ $category->name }}</option>
+                    <option value="{{ $category->id }}" @selected((int) old('category_id', $product->category_id) === (int) $category->id)>{{ $category->name }}</option>
                     @endforeach
                 </select>
             </label>
