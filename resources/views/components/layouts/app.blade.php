@@ -171,17 +171,17 @@
             <nav class="nav">
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
                 @auth
-                    <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}">Producten</a>
-                    <a href="{{ route('makers.index') }}" class="{{ request()->routeIs('makers.*') ? 'active' : '' }}">Makers</a>
-                    <a href="{{ route('orders.index') }}" class="{{ request()->routeIs('orders.*') ? 'active' : '' }}">Bestellingen</a>
-                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
-                    <form method="POST" action="{{ route('logout') }}" style="margin:0;">
-                        @csrf
-                        <button type="submit">Uitloggen</button>
-                    </form>
+                <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}">Producten</a>
+                <a href="{{ route('makers.index') }}" class="{{ request()->routeIs('makers.*') ? 'active' : '' }}">Makers</a>
+                <a href="{{ route('orders.index') }}" class="{{ request()->routeIs('orders.*') ? 'active' : '' }}">Bestellingen</a>
+                <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
+                <form method="POST" action="{{ route('logout') }}" style="margin:0;">
+                    @csrf
+                    <button type="submit">Uitloggen</button>
+                </form>
                 @else
-                    <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'active' : '' }}">Inloggen</a>
-                    <a href="{{ route('register') }}" class="{{ request()->routeIs('register') ? 'active' : '' }}">Registreren</a>
+                <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'active' : '' }}">Inloggen</a>
+                <a href="{{ route('register') }}" class="{{ request()->routeIs('register') ? 'active' : '' }}">Registreren</a>
                 @endauth
             </nav>
         </div>

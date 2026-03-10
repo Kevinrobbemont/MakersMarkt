@@ -5,10 +5,10 @@
 
         <div class="grid cols-3">
             @foreach ($stats as $item)
-                <article class="card">
-                    <p class="muted">{{ $item['label'] }}</p>
-                    <h2>{{ $item['value'] }}</h2>
-                </article>
+            <article class="card">
+                <p class="muted">{{ $item['label'] }}</p>
+                <h2>{{ $item['value'] }}</h2>
+            </article>
             @endforeach
         </div>
     </section>
