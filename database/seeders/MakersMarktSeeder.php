@@ -42,6 +42,7 @@ class MakersMarktSeeder extends Seeder
             'email' => 'admin@makersmarkt.test',
             'role_id' => $adminRole->id,
             'is_verified' => true,
+            'approved_at' => now(),
         ]);
 
         $moderator = User::factory()->create([
@@ -50,16 +51,19 @@ class MakersMarktSeeder extends Seeder
             'email' => 'moderator@makersmarkt.test',
             'role_id' => $moderatorRole->id,
             'is_verified' => true,
+            'approved_at' => now(),
         ]);
 
         $makers = User::factory(8)->create([
             'role_id' => $makerRole->id,
             'is_verified' => true,
+            'approved_at' => now(),
         ]);
 
         $buyers = User::factory(12)->create([
             'role_id' => $buyerRole->id,
             'is_verified' => true,
+            'approved_at' => now(),
         ]);
 
         $allUsers = collect([$admin])->merge($makers)->merge($buyers);
