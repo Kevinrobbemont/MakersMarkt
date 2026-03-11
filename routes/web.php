@@ -6,6 +6,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AccountApprovalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,6 +30,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
         ->middleware('moderator')
         ->name('admin.dashboard');
+
+    // Account approval routes
+    Route::get('/admin/accounts/pending', [AccountApprovalController::class, 'index'])
+        ->middleware('moderator')
+        ->name('admin.accounts.pending');
+    Route::post('/admin/accounts/{user}/approve', [AccountApprovalController::class, 'approve'])
+        ->middleware('moderator')
+        ->name('admin.accounts.approve');
+    Route::post('/admin/accounts/{user}/reject', [AccountApprovalController::class, 'reject'])
+        ->middleware('moderator')
+        ->name('admin.accounts.reject');
 
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/create', [ProductController::class, 'create'])
