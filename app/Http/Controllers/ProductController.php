@@ -149,7 +149,7 @@ class ProductController extends Controller
 
         $isAdmin = $request->user()?->role?->name === 'admin';
 
-        Product::create([
+        $product = Product::create([
             'maker_id' => $request->user()->id,
             'category_id' => (int) $validated['category_id'],
             'name' => $validated['name'],
@@ -159,6 +159,12 @@ class ProductController extends Controller
             'complexity' => $validated['complexity'] ?? null,
             'unique_features' => $validated['specifications'] ?? null,
             'is_approved' => $isAdmin, // Admin producten worden automatisch goedgekeurd
+            'has_external_links' => false, // Will be updated below
+        ]);
+
+        // Automatically detect and mark products with external links
+        $product->update([
+            'has_external_links' => $product->checkForExternalLinks(),
         ]);
 
         return redirect()
@@ -205,6 +211,11 @@ class ProductController extends Controller
             'production_time' => $validated['production_time'] ?? null,
             'complexity' => $validated['complexity'] ?? null,
             'unique_features' => $validated['specifications'] ?? null,
+        ]);
+
+        // Automatically detect and mark products with external links
+        $product->update([
+            'has_external_links' => $product->checkForExternalLinks(),
         ]);
 
         return redirect()
