@@ -66,6 +66,14 @@
                 <p class="kpi-value">{{ $makerCount }}</p>
                 <p class="kpi-sub">Geverifieerde makers</p>
             </article>
+
+            <article class="panel span-4" style="display: grid; place-items: center; background: linear-gradient(160deg, #ffffff 0%, var(--soft-pink) 100%); text-decoration: none;">
+                <a href="{{ route('admin.accounts.pending') }}" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; color: inherit;">
+                    <p class="kpi-label" style="margin-bottom: 0.5rem;">Accountgoedkeuring</p>
+                    <p class="kpi-value" style="font-size: 1.5rem; margin-bottom: 0.5rem;">⟳</p>
+                    <p class="kpi-sub">Keur nieuwe accounts goed</p>
+                </a>
+            </article>
         </div>
     </section>
 </x-layouts.app>

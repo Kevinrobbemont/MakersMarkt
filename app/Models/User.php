@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'role_id',
         'is_verified',
+        'approved_at',
     ];
 
     /**
@@ -47,6 +48,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_verified' => 'boolean',
+            'approved_at' => 'datetime',
         ];
     }
 
@@ -128,5 +130,29 @@ class User extends Authenticatable
     public function isAdminOrModerator(): bool
     {
         return in_array($this->role?->name, ['admin', 'moderator'], true);
+    }
+
+    /**
+     * Determine whether the user is approved.
+     */
+    public function isApproved(): bool
+    {
+        return $this->approved_at !== null;
+    }
+
+    /**
+     * Approve the user.
+     */
+    public function approve(): void
+    {
+        $this->update(['approved_at' => now()]);
+    }
+
+    /**
+     * Reject the user and delete the account.
+     */
+    public function reject(): void
+    {
+        $this->delete();
     }
 }
