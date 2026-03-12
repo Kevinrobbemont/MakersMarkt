@@ -17,6 +17,7 @@ class Notification extends Model
     protected $fillable = [
         'user_id',
         'product_id',
+        'order_id',
         'message',
         'is_read',
     ];
@@ -44,5 +45,13 @@ class Notification extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * Get the order associated with the notification.
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 }

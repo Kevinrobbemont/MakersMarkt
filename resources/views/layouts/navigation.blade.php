@@ -20,6 +20,17 @@
                         {{ __('Admin Dashboard') }}
                     </x-nav-link>
                     @endif
+                    <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')" class="relative">
+                        {{ __('Notificaties') }}
+                        @php
+                            $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
+                        @endphp
+                        @if($unreadCount > 0)
+                            <span class="absolute bottom-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1 translate-y-1 bg-red-600 rounded-full">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -44,18 +55,6 @@
                             {{ __('Admin Dashboard') }}
                         </x-dropdown-link>
                         @endif
-
-                        <x-dropdown-link :href="route('notifications.index')">
-                            {{ __('Notificaties') }}
-                            @php
-                                $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
-                            @endphp
-                            @if($unreadCount > 0)
-                                <span style="display:inline-block; margin-left:0.5rem; padding:0.15rem 0.4rem; background:#0f766e; color:#fff; font-size:0.75rem; font-weight:700; border-radius:10px;">
-                                    {{ $unreadCount }}
-                                </span>
-                            @endif
-                        </x-dropdown-link>
                         
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
@@ -98,6 +97,17 @@
                 {{ __('Admin Dashboard') }}
             </x-responsive-nav-link>
             @endif
+            <x-responsive-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')">
+                {{ __('Notificaties') }}
+                @php
+                    $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
+                @endphp
+                @if($unreadCount > 0)
+                    <span class="inline-flex items-center justify-center ml-2 px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                        {{ $unreadCount }}
+                    </span>
+                @endif
+            </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
@@ -108,10 +118,6 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('notifications.index')">
-                    {{ __('Notificaties') }}
-                </x-responsive-nav-link>
-                
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>

@@ -38,6 +38,11 @@
             </label>
 
             <label class="field">
+                <strong>Prijs in euro's *</strong><br>
+                <input name="price" type="number" step="0.01" min="0.01" value="{{ old('price') }}" placeholder="Bijv. 25.99" required>
+            </label>
+
+            <label class="field">
                 <strong>Type</strong><br>
                 <input name="type" value="{{ old('type') }}" placeholder="Bijv. keramiek, hout, textiel">
             </label>

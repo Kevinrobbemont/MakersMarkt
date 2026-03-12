@@ -19,6 +19,7 @@ class Product extends Model
         'category_id',
         'name',
         'description',
+        'price',
         'material',
         'production_time',
         'complexity',
@@ -36,6 +37,7 @@ class Product extends Model
     protected $casts = [
         'is_approved' => 'boolean',
         'has_external_links' => 'boolean',
+        'price' => 'decimal:2',
     ];
 
     /**

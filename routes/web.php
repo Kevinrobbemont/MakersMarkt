@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StatisticsController;
@@ -82,33 +83,12 @@ Route::middleware('auth')->group(function () {
         return view('makers.index', compact('makers'));
     })->name('makers.index');
 
-    Route::get('/orders', function () {
-        $orders = [
-            [
-                'id' => 1012,
-                'product' => 'Handgemaakte Keramische Mok',
-                'buyer' => 'Emma Van den Broeck',
-                'status' => 'in_progress',
-                'description' => 'Bestelling is in productie en wordt binnen 4 dagen verzonden.',
-            ],
-            [
-                'id' => 1013,
-                'product' => 'Eiken Houten Snijplank',
-                'buyer' => 'Lucas Vermeulen',
-                'status' => 'completed',
-                'description' => 'Afgeleverd en beoordeeld met 5 sterren.',
-            ],
-            [
-                'id' => 1014,
-                'product' => 'Geweven Wandtapijt',
-                'buyer' => 'Lotte Jacobs',
-                'status' => 'pending',
-                'description' => 'Betaling ontvangen, maker start productie binnenkort.',
-            ],
-        ];
-
-        return view('orders.index', compact('orders'));
-    })->name('orders.index');
+    // Order routes
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders', [OrderController::class, 'store'])
+        ->middleware('buyer')
+        ->name('orders.store');
 
     // Review routes
     Route::get('/reviews/create', [ReviewController::class, 'create'])->name('reviews.create');

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
@@ -12,8 +14,10 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        $notifications = auth()->user()->notifications()
-            ->with('product')
+        /** @var User $user */
+        $user = Auth::user();
+        $notifications = $user->notifications()
+            ->with(['product', 'order'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -26,7 +30,7 @@ class NotificationController extends Controller
     public function markAsRead($id)
     {
         $notification = Notification::where('id', $id)
-            ->where('user_id', auth()->id())
+            ->where('user_id', Auth::id())
             ->firstOrFail();
 
         $notification->update(['is_read' => true]);
@@ -39,7 +43,7 @@ class NotificationController extends Controller
      */
     public function markAllAsRead()
     {
-        Notification::where('user_id', auth()->id())
+        Notification::where('user_id', Auth::id())
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
