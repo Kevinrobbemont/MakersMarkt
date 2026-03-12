@@ -572,6 +572,15 @@
                 @if(auth()->user()->isAdminOrModerator())
                 <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') || request()->routeIs('statistics.*') ? 'active' : '' }}">Admin Dashboard</a>
                 @endif
+                <a href="{{ route('notifications.index') }}" class="{{ request()->routeIs('notifications.*') ? 'active' : '' }}" style="position: relative;">
+                    Notificaties
+                    @php
+                        $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
+                    @endphp
+                    @if($unreadCount > 0)
+                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; margin-left: 0.4rem; background: #dc2626; color: white; border-radius: 50%; font-size: 0.75rem; font-weight: bold;">{{ $unreadCount }}</span>
+                    @endif
+                </a>
                 <form method="POST" action="{{ route('logout') }}" style="margin:0;">
                     @csrf
                     <button type="submit">Uitloggen</button>
