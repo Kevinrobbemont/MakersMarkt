@@ -52,12 +52,4 @@ class Order extends Model
     {
         return $this->hasMany(CreditTransaction::class);
     }
-
-    /**
-     * Get the notification for the order.
-     */
-    public function notification()
-    {
-        return $this->hasOne(Notification::class);
-    }
 }

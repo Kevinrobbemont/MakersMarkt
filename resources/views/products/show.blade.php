@@ -23,12 +23,45 @@
 
             <hr class="divider">
 
+            <h3>Beoordelingen</h3>
+
+            @if ($reviewCount > 0)
+                <p>
+                    <strong>Gemiddelde rating:</strong>
+                    {{ number_format($averageRating, 1, ',', '.') }} / 5
+                </p>
+                <p class="muted">{{ $reviewCount }} review{{ $reviewCount !== 1 ? 's' : '' }}</p>
+            @else
+                <p class="muted">Dit product heeft nog geen reviews.</p>
+            @endif
+
+            <hr class="divider">
+
             <h3>Specificaties</h3>
             <p><strong>Type:</strong> {{ $product->material ?: 'Niet ingevuld' }}</p>
             <p><strong>Productietijd:</strong> {{ $product->production_time ?: 'Niet ingevuld' }}</p>
             <p><strong>Complexiteit:</strong> {{ $product->complexity ?: 'Niet ingevuld' }}</p>
             <p><strong>Duurzaamheid:</strong> {{ $product->sustainability ?: 'Niet ingevuld' }}</p>
             <p><strong>Unieke kenmerken:</strong> {{ $product->unique_features ?: 'Niet ingevuld' }}</p>
+
+            <hr class="divider">
+
+            <h3>Alle reviews</h3>
+
+            @if ($product->reviews->isNotEmpty())
+                <div class="stack" style="margin-top:1rem;">
+                    @foreach ($product->reviews->sortByDesc('created_at') as $review)
+                        <article class="panel">
+                            <p><strong>Beoordeling:</strong> {{ str_repeat('⭐', (int) $review->rating) }}</p>
+                            <p><strong>Gebruiker:</strong> {{ $review->order?->buyer?->name ?? 'Onbekend' }}</p>
+                            <p><strong>Datum:</strong> {{ $review->created_at?->format('d-m-Y') }}</p>
+                            <p><strong>Review:</strong> {{ $review->comment ?: 'Geen toelichting gegeven.' }}</p>
+                        </article>
+                    @endforeach
+                </div>
+            @else
+                <p class="muted">Er zijn nog geen reviews zichtbaar voor dit product.</p>
+            @endif
 
             <hr class="divider">
 

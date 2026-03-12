@@ -67,7 +67,6 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        // Haal beschikbare filter opties op
         $materials = Product::query()
             ->whereNotNull('material')
             ->where('material', '!=', '')
@@ -115,9 +114,16 @@ class ProductController extends Controller
     {
         $this->ensureCanViewProduct($request, $product);
 
-        $product->load(['category', 'maker']);
+        $product->load([
+            'category',
+            'maker',
+            'reviews.order.buyer',
+        ]);
 
-        return view('products.show', compact('product'));
+        $averageRating = $product->reviews->avg('rating');
+        $reviewCount = $product->reviews->count();
+
+        return view('products.show', compact('product', 'averageRating', 'reviewCount'));
     }
 
     /**
@@ -160,11 +166,10 @@ class ProductController extends Controller
             'production_time' => $validated['production_time'] ?? null,
             'complexity' => $validated['complexity'] ?? null,
             'unique_features' => $validated['specifications'] ?? null,
-            'is_approved' => $isAdmin, // Admin producten worden automatisch goedgekeurd
-            'has_external_links' => false, // Will be updated below
+            'is_approved' => $isAdmin,
+            'has_external_links' => false,
         ]);
 
-        // Automatically detect and mark products with external links
         $product->update([
             'has_external_links' => $product->checkForExternalLinks(),
         ]);
@@ -217,14 +222,13 @@ class ProductController extends Controller
             'unique_features' => $validated['specifications'] ?? null,
         ]);
 
-        // Automatically detect and mark products with external links
         $product->update([
             'has_external_links' => $product->checkForExternalLinks(),
         ]);
 
         return redirect()
             ->route('products.show', $product)
-            ->with('status', 'Wijzigingen zijn opgeslagen.');
+            ->with('status', 'Product succesvol bijgewerkt.');
     }
 
     /**
@@ -238,40 +242,34 @@ class ProductController extends Controller
 
         return redirect()
             ->route('products.index')
-            ->with('status', 'Product is verwijderd.');
+            ->with('status', 'Product succesvol verwijderd.');
     }
 
     /**
-     * Ensure that only the product owner or admin can manage the product.
+     * Ensure the authenticated user owns the product.
      */
     private function ensureOwner(Request $request, Product $product): void
     {
         $user = $request->user();
         $isAdmin = $user?->role?->name === 'admin';
-        $isOwner = (int) $product->maker_id === (int) $user->id;
 
-        if (!$isAdmin && !$isOwner) {
-            abort(403, 'Je mag alleen je eigen producten aanpassen of verwijderen.');
+        if (!$isAdmin && (int) $product->maker_id !== (int) $user->id) {
+            abort(403, 'Je mag dit product niet aanpassen.');
         }
     }
 
     /**
-     * Ensure product visibility rules for buyers and makers.
+     * Ensure the authenticated user can view the product.
      */
     private function ensureCanViewProduct(Request $request, Product $product): void
     {
         $user = $request->user();
-        $isAdmin = $user?->role?->name === 'admin';
-        $isOwner = (int) $product->maker_id === (int) $user->id;
-        $isMaker = $user?->role?->name === 'maker';
+        $roleName = $user?->role?->name;
+        $isAdmin = $roleName === 'admin';
+        $isOwner = $user && (int) $product->maker_id === (int) $user->id;
 
-        // Admin kan alles zien
-        if ($isAdmin) {
-            return;
-        }
-
-        if (! $product->is_approved && ! ($isMaker && $isOwner)) {
-            abort(404);
+        if (!$product->is_approved && !$isAdmin && !$isOwner) {
+            abort(403, 'Dit product is nog niet goedgekeurd.');
         }
     }
 }

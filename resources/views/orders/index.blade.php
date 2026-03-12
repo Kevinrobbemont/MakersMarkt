@@ -48,25 +48,23 @@
                                 <p><strong>Status:</strong> <span class="pill">{{ $order->status }}</span></p>
                                 <p class="muted">{{ $order->status_description ?: 'Geen extra toelichting.' }}</p>
 
-                                @if (!$isMaker && !$isAdmin)
-                                    @if ($order->review)
-                                        <p style="margin-top: .75rem;">
-                                            <strong>Jouw review:</strong>
-                                            {{ str_repeat('⭐', (int) $order->review->rating) }}
-                                            @if ($order->review->comment)
-                                                – {{ $order->review->comment }}
-                                            @endif
-                                        </p>
-                                    @elseif ($order->status !== 'geweigerd')
-                                        <p style="margin-top: .75rem;" class="muted">Je kunt voor deze bestelling een review plaatsen.</p>
-                                    @endif
+                                @if ($order->review)
+                                    <p style="margin-top: .75rem;">
+                                        <strong>Review:</strong>
+                                        {{ str_repeat('⭐', (int) $order->review->rating) }}
+                                        @if ($order->review->comment)
+                                            – {{ $order->review->comment }}
+                                        @endif
+                                    </p>
+                                @elseif ($order->status !== 'geweigerd')
+                                    <p style="margin-top: .75rem;" class="muted">Voor deze bestelling kan een review geplaatst worden.</p>
                                 @endif
                             </div>
 
                             <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
                                 <a href="{{ route('orders.show', $order) }}" class="btn btn-secondary">Bekijken</a>
 
-                                @if (!$isMaker && !$isAdmin && !$order->review && $order->status !== 'geweigerd')
+                                @if (!$order->review && $order->status !== 'geweigerd')
                                     <a href="{{ route('reviews.create', ['order_id' => $order->id]) }}" class="btn btn-primary">
                                         Review plaatsen
                                     </a>

@@ -28,10 +28,7 @@ class ReviewController extends Controller
             'review',
         ])->findOrFail($orderId);
 
-        // Alleen de koper van deze bestelling mag een review plaatsen
-        if ((int) $order->buyer_id !== (int) auth()->id()) {
-            abort(403, 'Je mag alleen reviews plaatsen voor je eigen bestellingen.');
-        }
+        $this->ensureCanReviewOrder($request, $order);
 
         // Geen review bij een geweigerde bestelling
         if ($order->status === 'geweigerd') {
@@ -44,7 +41,7 @@ class ReviewController extends Controller
         if ($order->review) {
             return redirect()
                 ->route('orders.show', $order)
-                ->with('error', 'Je hebt al een review geplaatst voor deze bestelling.');
+                ->with('error', 'Er is al een review geplaatst voor deze bestelling.');
         }
 
         return view('reviews.create', compact('order'));
@@ -67,10 +64,7 @@ class ReviewController extends Controller
             'review',
         ])->findOrFail($validated['order_id']);
 
-        // Alleen de koper van deze bestelling mag een review plaatsen
-        if ((int) $order->buyer_id !== (int) auth()->id()) {
-            abort(403, 'Je mag alleen reviews plaatsen voor je eigen bestellingen.');
-        }
+        $this->ensureCanReviewOrder($request, $order);
 
         // Geen review bij een geweigerde bestelling
         if ($order->status === 'geweigerd') {
@@ -83,7 +77,7 @@ class ReviewController extends Controller
         if ($order->review) {
             return redirect()
                 ->route('orders.show', $order)
-                ->with('error', 'Je hebt al een review geplaatst voor deze bestelling.');
+                ->with('error', 'Er is al een review geplaatst voor deze bestelling.');
         }
 
         Review::create([
@@ -106,5 +100,20 @@ class ReviewController extends Controller
         return redirect()
             ->route('orders.show', $order)
             ->with('status', 'Review succesvol toegevoegd!');
+    }
+
+    /**
+     * Alleen gebruikers die de bestelling mogen zien, mogen ook reviewen.
+     */
+    private function ensureCanReviewOrder(Request $request, Order $order): void
+    {
+        $user = $request->user();
+        $isAdmin = $user?->role?->name === 'admin';
+        $isBuyer = (int) $order->buyer_id === (int) $user->id;
+        $isMaker = (int) $order->product->maker_id === (int) $user->id;
+
+        if (!$isAdmin && !$isBuyer && !$isMaker) {
+            abort(403, 'Je mag alleen een review plaatsen bij een bestelling die je mag bekijken.');
+        }
     }
 }

@@ -46,8 +46,9 @@
             @if ($order->review)
                 <p><strong>Beoordeling:</strong> {{ str_repeat('⭐', (int) $order->review->rating) }}</p>
                 <p><strong>Commentaar:</strong> {{ $order->review->comment ?: 'Geen commentaar toegevoegd.' }}</p>
-            @elseif ((int) $order->buyer_id === (int) auth()->id() && $order->status !== 'geweigerd')
-                <p class="muted">Je hebt nog geen review geplaatst voor deze bestelling.</p>
+                <p><strong>Datum:</strong> {{ $order->review->created_at?->format('d-m-Y') }}</p>
+            @elseif ($order->status !== 'geweigerd')
+                <p class="muted">Er is nog geen review geplaatst voor deze bestelling.</p>
 
                 <div class="btn-row" style="margin-top: 1rem;">
                     <a href="{{ route('reviews.create', ['order_id' => $order->id]) }}" class="btn btn-primary">

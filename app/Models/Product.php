@@ -49,7 +49,6 @@ class Product extends Model
             return false;
         }
 
-        // Pattern to match URLs (http, https, www, and other common protocols)
         $pattern = '/https?:\/\/|www\./i';
 
         return preg_match($pattern, $text) === 1;
@@ -98,6 +97,21 @@ class Product extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get all reviews for this product via orders.
+     */
+    public function reviews()
+    {
+        return $this->hasManyThrough(
+            Review::class,
+            Order::class,
+            'product_id',
+            'order_id',
+            'id',
+            'id'
+        );
     }
 
     /**
