@@ -76,6 +76,9 @@
                 <h3>{{ $product->name }}</h3>
                 <p class="muted">Maker: {{ $product->maker?->name ?? 'Onbekend' }}</p>
                 <p>{{ $product->description }}</p>
+                <p style="color: #2ecc71; font-weight: bold; margin: 0.5rem 0;">
+                    €{{ number_format($product->price, 2, ',', '.') }}
+                </p>
                 <p class="muted">
                     Status:
                     {{ $product->is_approved ? 'goedgekeurd' : 'niet goedgekeurd' }}

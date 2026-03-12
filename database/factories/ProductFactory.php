@@ -26,6 +26,7 @@ class ProductFactory extends Factory
             'category_id' => Category::factory(),
             'name' => fake()->words(3, true),
             'description' => fake()->paragraph(),
+            'price' => fake()->numberBetween(1000, 50000) / 100, // Price in euros with cents
             'material' => fake()->randomElement(['Wood', 'Clay', 'Wool', 'Metal', 'Glass', 'Leather']),
             'production_time' => fake()->numberBetween(1, 21) . ' days',
             'complexity' => fake()->randomElement(['Low', 'Medium', 'High']),

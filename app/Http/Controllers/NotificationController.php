@@ -13,7 +13,7 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = auth()->user()->notifications()
-            ->with('product')
+            ->with(['product', 'order'])
             ->orderBy('created_at', 'desc')
             ->get();
 
