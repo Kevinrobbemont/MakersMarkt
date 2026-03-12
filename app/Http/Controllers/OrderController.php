@@ -24,7 +24,12 @@ class OrderController extends Controller
         $isMaker = $user?->role?->name === 'maker';
         $isAdmin = $user?->role?->name === 'admin';
 
-        $ordersQuery = Order::query()->with(['product', 'buyer', 'product.maker']);
+        $ordersQuery = Order::query()->with([
+            'product',
+            'buyer',
+            'product.maker',
+            'review',
+        ]);
 
         if ($isMaker && !$isAdmin) {
             // Makers see orders for their products
@@ -49,7 +54,12 @@ class OrderController extends Controller
     {
         $this->ensureCanViewOrder($request, $order);
 
-        $order->load(['product', 'buyer', 'product.maker']);
+        $order->load([
+            'product',
+            'buyer',
+            'product.maker',
+            'review',
+        ]);
 
         return view('orders.show', compact('order'));
     }
@@ -105,7 +115,7 @@ class OrderController extends Controller
                 'user_id' => $product->maker_id,
                 'product_id' => $product->id,
                 'order_id' => $order->id,
-                'message' => "Je hebt een nieuwe bestelling ontvangen voor '{$product->name}' van {$user->first_name} {$user->last_name}.",
+                'message' => "Je hebt een nieuwe bestelling ontvangen voor '{$product->name}' van {$user->name}.",
             ]);
 
             // Deduct credit from buyer

@@ -2,38 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Review;
-use App\Models\Order;
 use App\Models\Notification;
+use App\Models\Order;
+use App\Models\Review;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ReviewController extends Controller
 {
     /**
      * Show the form for creating a new review.
      */
-    public function create(Request $request)
+    public function create(Request $request): View|RedirectResponse
     {
         $orderId = $request->query('order_id');
-        $order = Order::with('product.maker')->findOrFail($orderId);
-        
-        // Check if the authenticated user is the buyer of this order
-        if ($order->buyer_id !== auth()->id()) {
+
+        if (!$orderId) {
+            return redirect()->route('orders.index')->with('error', 'Geen bestelling geselecteerd.');
+        }
+
+        $order = Order::with([
+            'product.maker',
+            'buyer',
+            'review',
+        ])->findOrFail($orderId);
+
+        // Alleen de koper van deze bestelling mag een review plaatsen
+        if ((int) $order->buyer_id !== (int) auth()->id()) {
             abort(403, 'Je mag alleen reviews plaatsen voor je eigen bestellingen.');
         }
-        
-        // Check if a review already exists for this order
-        if ($order->review) {
-            return redirect()->back()->with('error', 'Je hebt al een review geplaatst voor deze bestelling.');
+
+        // Geen review bij een geweigerde bestelling
+        if ($order->status === 'geweigerd') {
+            return redirect()
+                ->route('orders.show', $order)
+                ->with('error', 'Je kunt geen review plaatsen voor een geweigerde bestelling.');
         }
-        
+
+        // Slechts één review per bestelling
+        if ($order->review) {
+            return redirect()
+                ->route('orders.show', $order)
+                ->with('error', 'Je hebt al een review geplaatst voor deze bestelling.');
+        }
+
         return view('reviews.create', compact('order'));
     }
 
     /**
      * Store a newly created review in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'order_id' => 'required|exists:orders,id',
@@ -41,22 +61,50 @@ class ReviewController extends Controller
             'comment' => 'nullable|string|max:1000',
         ]);
 
-        // Create the review
-        $review = Review::create($validated);
+        $order = Order::with([
+            'product.maker',
+            'buyer',
+            'review',
+        ])->findOrFail($validated['order_id']);
 
-        // Get the order and product to send notification to maker
-        $order = Order::with('product.maker')->findOrFail($validated['order_id']);
+        // Alleen de koper van deze bestelling mag een review plaatsen
+        if ((int) $order->buyer_id !== (int) auth()->id()) {
+            abort(403, 'Je mag alleen reviews plaatsen voor je eigen bestellingen.');
+        }
+
+        // Geen review bij een geweigerde bestelling
+        if ($order->status === 'geweigerd') {
+            return redirect()
+                ->route('orders.show', $order)
+                ->with('error', 'Je kunt geen review plaatsen voor een geweigerde bestelling.');
+        }
+
+        // Slechts één review per bestelling
+        if ($order->review) {
+            return redirect()
+                ->route('orders.show', $order)
+                ->with('error', 'Je hebt al een review geplaatst voor deze bestelling.');
+        }
+
+        Review::create([
+            'order_id' => $order->id,
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment'] ?? null,
+        ]);
+
         $product = $order->product;
         $maker = $product->maker;
 
-        // Create notification for the maker
         Notification::create([
             'user_id' => $maker->id,
             'product_id' => $product->id,
+            'order_id' => $order->id,
             'message' => 'Je hebt een nieuwe review ontvangen voor ' . $product->name,
             'is_read' => false,
         ]);
 
-        return redirect()->back()->with('success', 'Review succesvol toegevoegd!');
+        return redirect()
+            ->route('orders.show', $order)
+            ->with('status', 'Review succesvol toegevoegd!');
     }
 }
