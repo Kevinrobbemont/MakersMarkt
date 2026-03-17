@@ -45,7 +45,7 @@
                                 </p>
 
                                 <p><strong>Bedrag:</strong> €{{ number_format($order->product?->price ?? 0, 2, ',', '.') }}</p>
-                                <p><strong>Status:</strong> <span class="pill">{{ $order->status }}</span></p>
+                                <p><strong>Status:</strong> <span class="pill">{{ $order->getStatusLabel() }}</span></p>
                                 <p class="muted">{{ $order->status_description ?: 'Geen extra toelichting.' }}</p>
 
                                 @if ($order->review)
@@ -56,7 +56,7 @@
                                             – {{ $order->review->comment }}
                                         @endif
                                     </p>
-                                @elseif ($order->status !== 'geweigerd')
+                                @elseif (!$isMaker && !$isAdmin && !$order->isRejected())
                                     <p style="margin-top: .75rem;" class="muted">Voor deze bestelling kan een review geplaatst worden.</p>
                                 @endif
                             </div>
@@ -64,7 +64,7 @@
                             <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
                                 <a href="{{ route('orders.show', $order) }}" class="btn btn-secondary">Bekijken</a>
 
-                                @if (!$order->review && $order->status !== 'geweigerd')
+                                @if (!$isMaker && !$isAdmin && !$order->review && !$order->isRejected())
                                     <a href="{{ route('reviews.create', ['order_id' => $order->id]) }}" class="btn btn-primary">
                                         Review plaatsen
                                     </a>

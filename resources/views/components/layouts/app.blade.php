@@ -140,33 +140,13 @@
             box-shadow: 0 8px 24px rgba(35, 54, 88, 0.06);
         }
 
-        .span-3 {
-            grid-column: span 3;
-        }
-
-        .span-4 {
-            grid-column: span 4;
-        }
-
-        .span-5 {
-            grid-column: span 5;
-        }
-
-        .span-6 {
-            grid-column: span 6;
-        }
-
-        .span-7 {
-            grid-column: span 7;
-        }
-
-        .span-8 {
-            grid-column: span 8;
-        }
-
-        .span-12 {
-            grid-column: span 12;
-        }
+        .span-3 { grid-column: span 3; }
+        .span-4 { grid-column: span 4; }
+        .span-5 { grid-column: span 5; }
+        .span-6 { grid-column: span 6; }
+        .span-7 { grid-column: span 7; }
+        .span-8 { grid-column: span 8; }
+        .span-12 { grid-column: span 12; }
 
         .kpi-card {
             display: flex;
@@ -494,6 +474,91 @@
             color: var(--muted);
         }
 
+        .muted {
+            color: var(--muted);
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.38rem 0.75rem;
+            border-radius: 999px;
+            background: #eaf2ff;
+            color: #114c9b;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: 1px solid #cfe0fb;
+        }
+
+        /* NIEUWE STYLING VOOR ORDER DETAIL / STATUS FORM */
+        .order-detail-card {
+            padding: 1.4rem;
+        }
+
+        .order-summary-grid,
+        .order-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .info-card {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border: 1px solid #dbe6f2;
+            border-radius: 14px;
+            padding: 1rem 1.05rem;
+        }
+
+        .info-card-wide {
+            grid-column: span 2;
+        }
+
+        .info-label {
+            display: block;
+            margin-bottom: 0.35rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #667791;
+        }
+
+        .info-value {
+            margin: 0;
+            font-size: 1rem;
+            color: #12213b;
+            line-height: 1.5;
+        }
+
+        .status-update-box {
+            border: 1px solid #d9e5f2;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #f7fbff 0%, #ffffff 100%);
+            padding: 1.15rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .status-update-head {
+            margin-bottom: 1rem;
+        }
+
+        .status-form {
+            max-width: 720px;
+        }
+
+        .status-form .field textarea {
+            min-height: 130px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .status-form-actions {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 0.25rem;
+        }
+
         @media (max-width: 980px) {
             .span-3,
             .span-4,
@@ -515,45 +580,20 @@
             .section-head {
                 align-items: flex-start;
             }
+
+            .order-summary-grid,
+            .order-meta-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-card-wide {
+                grid-column: span 1;
+            }
         }
 
         .hero {
-            padding: 1.6rem;
-            border-radius: 16px;
-            border: 1px solid rgba(15, 118, 110, 0.25);
-            background: linear-gradient(120deg, #d1fae5, #fef3c7);
-        }
-
-        .muted {
-            color: var(--muted);
-        }
-
-        .pill {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 999px;
-            border: 1px solid var(--line);
-            background: #fff;
-            font-size: 0.85rem;
-        }
-
-        .stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-top: 1rem;
-        }
-
-        .stats .card {
-            flex: 1 1 180px;
-        }
-
-        footer {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--line);
-            color: var(--muted);
-            font-size: 0.9rem;
+            display: grid;
+            gap: 1rem;
         }
     </style>
 </head>
@@ -561,44 +601,27 @@
 <body>
     <header class="topbar">
         <div class="container topbar-inner">
-            <a href="{{ route('home') }}" class="brand">MakersMarkt</a>
+            <a href="{{ route('dashboard') }}" class="brand">MakersMarkt</a>
+
             <nav class="nav">
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
-                @auth
-                <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}">Producten</a>
-                <a href="{{ route('makers.index') }}" class="{{ request()->routeIs('makers.*') ? 'active' : '' }}">Makers</a>
-                <a href="{{ route('orders.index') }}" class="{{ request()->routeIs('orders.*') ? 'active' : '' }}">Bestellingen</a>
                 <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
-                @if(auth()->user()->isAdminOrModerator())
-                <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') || request()->routeIs('statistics.*') ? 'active' : '' }}">Admin Dashboard</a>
-                @endif
-                <a href="{{ route('notifications.index') }}" class="{{ request()->routeIs('notifications.*') ? 'active' : '' }}" style="position: relative;">
-                    Notificaties
-                    @php
-                        $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
-                    @endphp
-                    @if($unreadCount > 0)
-                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; margin-left: 0.4rem; background: #dc2626; color: white; border-radius: 50%; font-size: 0.75rem; font-weight: bold;">{{ $unreadCount }}</span>
-                    @endif
-                </a>
-                <form method="POST" action="{{ route('logout') }}" style="margin:0;">
+                <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}">Producten</a>
+                <a href="{{ route('orders.index') }}" class="{{ request()->routeIs('orders.*') ? 'active' : '' }}">Bestellingen</a>
+                <a href="{{ route('notifications.index') }}" class="{{ request()->routeIs('notifications.*') ? 'active' : '' }}">Meldingen</a>
+                <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">Profiel</a>
+
+                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                     @csrf
                     <button type="submit">Uitloggen</button>
                 </form>
-                @else
-                <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'active' : '' }}">Inloggen</a>
-                <a href="{{ route('register') }}" class="{{ request()->routeIs('register') ? 'active' : '' }}">Registreren</a>
-                @endauth
             </nav>
         </div>
     </header>
 
-    <main class="container">
-        {{ $slot }}
-
-        <footer>
-            <p>MakersMarkt basislayout - klaar om uit te breiden met echte data, auth en acties.</p>
-        </footer>
+    <main>
+        <div class="container">
+            {{ $slot }}
+        </div>
     </main>
 </body>
 

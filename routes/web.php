@@ -86,6 +86,9 @@ Route::middleware('auth')->group(function () {
     // Order routes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])
+        ->middleware('maker')
+        ->name('orders.updateStatus');
     Route::post('/orders', [OrderController::class, 'store'])
         ->middleware('buyer')
         ->name('orders.store');
