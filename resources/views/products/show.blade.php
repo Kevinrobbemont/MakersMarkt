@@ -1,15 +1,15 @@
 <x-layouts.app :title="'MakersMarkt - '.$product->name">
     <section>
         @if (session('status'))
-        <article class="alert alert-success">
-            <p style="margin:0;">{{ session('status') }}</p>
-        </article>
+            <article class="alert alert-success">
+                <p style="margin:0;">{{ session('status') }}</p>
+            </article>
         @endif
 
         @if (session('error'))
-        <article class="alert alert-error">
-            <p style="margin:0;">{{ session('error') }}</p>
-        </article>
+            <article class="alert alert-error">
+                <p style="margin:0;">{{ session('error') }}</p>
+            </article>
         @endif
 
         <article class="card">
@@ -18,6 +18,15 @@
             <p class="muted">Maker: {{ $product->maker?->name ?? 'Onbekend' }}</p>
 
             <h2 style="color: #2ecc71; margin: 1rem 0;">€{{ number_format($product->price, 2, ',', '.') }}</h2>
+
+            @if (auth()->user() && (int) $product->maker_id !== (int) auth()->id() && $buyerCredit)
+                <article class="alert" style="border-color:#cfe0fb;background:#f5f9ff;color:#173b6b;">
+                    <p style="margin:0;">
+                        <strong>Jouw winkelkrediet:</strong>
+                        €{{ number_format((float) $buyerCredit->balance, 2, ',', '.') }}
+                    </p>
+                </article>
+            @endif
 
             <p>{{ $product->description }}</p>
 
@@ -77,7 +86,7 @@
                     <form method="POST" action="{{ route('orders.store') }}" style="margin:0;">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <button type="submit" class="btn btn-primary">Bestellen</button>
+                        <button type="submit" class="btn btn-primary">Bestellen met winkelkrediet</button>
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-primary">Inloggen om te bestellen</a>

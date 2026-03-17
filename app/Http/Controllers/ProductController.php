@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Credit;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -122,8 +123,16 @@ class ProductController extends Controller
 
         $averageRating = $product->reviews->avg('rating');
         $reviewCount = $product->reviews->count();
+        $buyerCredit = null;
 
-        return view('products.show', compact('product', 'averageRating', 'reviewCount'));
+        if ($request->user()) {
+            $buyerCredit = Credit::firstOrCreate(
+                ['user_id' => $request->user()->id],
+                ['balance' => 0]
+            );
+        }
+
+        return view('products.show', compact('product', 'averageRating', 'reviewCount', 'buyerCredit'));
     }
 
     /**
@@ -264,8 +273,7 @@ class ProductController extends Controller
     private function ensureCanViewProduct(Request $request, Product $product): void
     {
         $user = $request->user();
-        $roleName = $user?->role?->name;
-        $isAdmin = $roleName === 'admin';
+        $isAdmin = $user?->role?->name === 'admin';
         $isOwner = $user && (int) $product->maker_id === (int) $user->id;
 
         if (!$product->is_approved && !$isAdmin && !$isOwner) {

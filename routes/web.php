@@ -32,7 +32,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('moderator')
         ->name('admin.dashboard');
 
-    // Account approval routes
     Route::get('/admin/accounts/pending', [AccountApprovalController::class, 'index'])
         ->middleware('moderator')
         ->name('admin.accounts.pending');
@@ -83,7 +82,6 @@ Route::middleware('auth')->group(function () {
         return view('makers.index', compact('makers'));
     })->name('makers.index');
 
-    // Order routes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])
@@ -93,16 +91,13 @@ Route::middleware('auth')->group(function () {
         ->middleware('buyer')
         ->name('orders.store');
 
-    // Review routes
     Route::get('/reviews/create', [ReviewController::class, 'create'])->name('reviews.create');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
-    // Notification routes
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
     Route::patch('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 
-    // Statistics routes (moderator/admin only)
     Route::get('/statistics', [StatisticsController::class, 'index'])
         ->middleware('moderator')
         ->name('statistics.index');

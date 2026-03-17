@@ -30,7 +30,7 @@ class UpdateOrderStatusRequest extends FormRequest
     }
 
     /**
-     * Get the error messages for the defined validation rules.
+     * Get custom validation messages.
      *
      * @return array<string, string>
      */

@@ -42,8 +42,11 @@ class OrderController extends Controller
         }
 
         $orders = $ordersQuery->latest()->paginate(15);
+        $buyerCredit = $isMaker && !$isAdmin
+            ? null
+            : Credit::firstOrCreate(['user_id' => $user->id], ['balance' => 0]);
 
-        return view('orders.index', compact('orders', 'isMaker', 'isAdmin'));
+        return view('orders.index', compact('orders', 'isMaker', 'isAdmin', 'buyerCredit'));
     }
 
     /**
@@ -58,6 +61,8 @@ class OrderController extends Controller
             'buyer',
             'product.maker',
             'review',
+            'creditTransactions.fromUser',
+            'creditTransactions.toUser',
         ]);
 
         $isOwnerMaker = (int) $order->product->maker_id === (int) $request->user()?->id;
@@ -67,7 +72,11 @@ class OrderController extends Controller
             Order::STATUS_REJECTED => Order::statusOptions()[Order::STATUS_REJECTED],
         ];
 
-        return view('orders.show', compact('order', 'isOwnerMaker', 'statusOptions'));
+        $buyerCredit = (int) $order->buyer_id === (int) $request->user()?->id
+            ? Credit::firstOrCreate(['user_id' => $request->user()->id], ['balance' => 0])
+            : null;
+
+        return view('orders.show', compact('order', 'isOwnerMaker', 'statusOptions', 'buyerCredit'));
     }
 
     /**
@@ -93,9 +102,10 @@ class OrderController extends Controller
             ['balance' => 0]
         );
 
-        if ($buyerCredit->balance < $product->price) {
-            $needed = $product->price - $buyerCredit->balance;
-            return redirect()->back()->with('error', "Onvoldoende krediet. Je hebt nog {$needed} euro nodig.");
+        if ((float) $buyerCredit->balance < (float) $product->price) {
+            $needed = number_format((float) $product->price - (float) $buyerCredit->balance, 2, ',', '.');
+
+            return redirect()->back()->with('error', "Onvoldoende winkelkrediet. Je komt nog €{$needed} tekort.");
         }
 
         $makerCredit = Credit::firstOrCreate(
@@ -104,34 +114,45 @@ class OrderController extends Controller
         );
 
         try {
-            $order = Order::create([
-                'product_id' => $product->id,
-                'buyer_id' => $user->id,
-                'status' => Order::STATUS_PENDING,
-                'status_description' => 'Betaling ontvangen, maker start productie binnenkort.',
-            ]);
+            $order = DB::transaction(function () use ($user, $product, $buyerCredit, $makerCredit) {
+                $order = Order::create([
+                    'product_id' => $product->id,
+                    'buyer_id' => $user->id,
+                    'status' => Order::STATUS_PENDING,
+                    'status_description' => 'Betaling ontvangen via winkelkrediet. Maker start productie binnenkort.',
+                ]);
 
-            Notification::create([
-                'user_id' => $product->maker_id,
-                'product_id' => $product->id,
-                'order_id' => $order->id,
-                'message' => "Je hebt een nieuwe bestelling ontvangen voor '{$product->name}' van {$user->name}.",
-            ]);
+                $buyerCredit->decrement('balance', $product->price);
+                $makerCredit->increment('balance', $product->price);
 
-            $buyerCredit->decrement('balance', $product->price);
-            $makerCredit->increment('balance', $product->price);
+                CreditTransaction::create([
+                    'from_user_id' => $user->id,
+                    'to_user_id' => $product->maker_id,
+                    'amount' => $product->price,
+                    'order_id' => $order->id,
+                ]);
 
-            CreditTransaction::create([
-                'from_user_id' => $user->id,
-                'to_user_id' => $product->maker_id,
-                'amount' => $product->price,
-                'order_id' => $order->id,
-            ]);
+                Notification::create([
+                    'user_id' => $product->maker_id,
+                    'product_id' => $product->id,
+                    'order_id' => $order->id,
+                    'message' => "Je hebt een nieuwe bestelling ontvangen voor '{$product->name}' van {$user->name}.",
+                ]);
+
+                return $order;
+            });
+
+            $updatedBuyerCredit = Credit::firstOrCreate(
+                ['user_id' => $user->id],
+                ['balance' => 0]
+            );
+
+            $formattedBalance = number_format((float) $updatedBuyerCredit->balance, 2, ',', '.');
 
             return redirect()
                 ->route('orders.show', $order)
-                ->with('status', 'Je bestelling is geplaatst! De maker zal deze spoedig in behandeling nemen.');
-        } catch (\Exception $e) {
+                ->with('status', "Je bestelling is geplaatst en betaald met winkelkrediet. Je nieuwe saldo is €{$formattedBalance}.");
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Er is een fout opgetreden bij het plaatsen van je bestelling. Probeer het later opnieuw.');
         }
     }
@@ -187,13 +208,22 @@ class OrderController extends Controller
                 ]);
             });
 
-            $message = $newStatus === Order::STATUS_REJECTED
-                ? 'De bestelling is geweigerd en de terugbetaling is verwerkt.'
-                : 'De bestelstatus is bijgewerkt.';
+            if ($newStatus === Order::STATUS_REJECTED) {
+                $buyerCredit = Credit::firstOrCreate(
+                    ['user_id' => $order->buyer_id],
+                    ['balance' => 0]
+                );
+
+                $formattedBalance = number_format((float) $buyerCredit->balance, 2, ',', '.');
+
+                return redirect()
+                    ->route('orders.show', $order)
+                    ->with('status', "De bestelling is geweigerd. Het winkelkrediet is automatisch teruggestort. Nieuw saldo koper: €{$formattedBalance}.");
+            }
 
             return redirect()
                 ->route('orders.show', $order)
-                ->with('status', $message);
+                ->with('status', 'De bestelstatus is bijgewerkt.');
         } catch (\Throwable $e) {
             return redirect()
                 ->route('orders.show', $order)

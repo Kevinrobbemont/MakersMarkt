@@ -48,7 +48,7 @@ class Order extends Model
     }
 
     /**
-     * Get the human readable status label.
+     * Get a human readable status label.
      */
     public function getStatusLabel(): string
     {
@@ -56,7 +56,7 @@ class Order extends Model
     }
 
     /**
-     * Determine whether the order is rejected.
+     * Check if the order is rejected.
      */
     public function isRejected(): bool
     {
